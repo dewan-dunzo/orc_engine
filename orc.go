@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -24,7 +26,13 @@ type schedulePayload struct {
 func createRequest(r *http.Request) []byte {
 	var newTask interface{}
 
-	_ = json.NewDecoder(r.Body).Decode(&newTask)
+	b := bytes.NewBuffer(make([]byte, 0))
+	reader := io.TeeReader(r.Body, b)
+	if err := json.NewDecoder(reader).Decode(&newTask); err != nil {
+		log.Fatal(err)
+	}
+
+	// _ = json.NewDecoder(r.Body).Decode(&newTask)
 
 	jsonResp, _ := json.Marshal(newTask)
 
@@ -46,6 +54,7 @@ func createRequest(r *http.Request) []byte {
 	fmt.Println("response Status:", resp.Status)
 	body, _ := ioutil.ReadAll(resp.Body)
 	fmt.Println("response Body:", string(body))
+	r.Body = ioutil.NopCloser(b)
 	return body
 }
 
@@ -78,6 +87,7 @@ func scheduleReq(r *http.Request, tid string) []byte {
 	fmt.Println(string(jsonResp))
 
 	url := "http://192.168.1.188:8000/schedule"
+	
 	fmt.Println("URL:>", url)
 
 	var jsonStr = []byte(jsonResp)
@@ -104,15 +114,15 @@ func schedule(w http.ResponseWriter, r *http.Request) {
 
 func createAndSchedule(w http.ResponseWriter, r *http.Request) {
 	var Payload creationPayload
-	var r1 http.Request
-	var r2 http.Request
-	r1 = *r
-	r2 = *r
-	jsonResp := createRequest(&r1)
+	// var r1 http.Request
+	// var r2 http.Request
+	// r1 = *r
+	// r2 = *r
+	jsonResp := createRequest(r)
 	json.Unmarshal(jsonResp, &Payload)
 	// fmt.Println(jsonResp, Payload)
 	tid := Payload.ID
-	scheduleReq(&r2, strconv.Itoa(tid))
+	scheduleReq(r, strconv.Itoa(tid))
 }
 
 func main() {
