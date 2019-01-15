@@ -39,8 +39,8 @@ func createRequest(r *http.Request) []byte {
 	fmt.Println("Incoming data")
 	fmt.Println(string(jsonResp))
 
-	// url := "http://192.168.1.229:8000/todo/"
-	url := "http://192.168.1.189:8000/task"
+	url := "http://192.168.1.229:8000/todo/"
+	// url := "http://192.168.1.229:8000/task"
 
 	fmt.Println("URL:>", url)
 
@@ -67,7 +67,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 }
 
 func scheduleReq(r *http.Request, tid string) []byte {
-	var newTask interface{}
+	var newTask schedulePayload
 	id := ""
 	if tid == "" {
 		id = r.URL.Path[10:]
@@ -79,7 +79,7 @@ func scheduleReq(r *http.Request, tid string) []byte {
 	fmt.Println("id >", id)
 	err := json.NewDecoder(r.Body).Decode(&newTask)
 	fmt.Println(err)
-	// newTask.TaskID, _ = strconv.Atoi(id)
+	newTask.TaskID, _ = strconv.Atoi(id)
 
 	// fmt.Println(newTask, id, newTask.TaskID)
 
@@ -124,6 +124,7 @@ func createAndSchedule(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(jsonResp, &Payload)
 	// fmt.Println(jsonResp, Payload)
 	tid := Payload.ID
+	fmt.Println("------------", tid)
 	scheduleReq(r, strconv.Itoa(tid))
 }
 
