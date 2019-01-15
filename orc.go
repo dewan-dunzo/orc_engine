@@ -39,7 +39,9 @@ func createRequest(r *http.Request) []byte {
 	fmt.Println("Incoming data")
 	fmt.Println(string(jsonResp))
 
-	url := "http://192.168.1.229:8000/todo/"
+	// url := "http://192.168.1.229:8000/todo/"
+	url := "http://192.168.1.189:8000/task"
+
 	fmt.Println("URL:>", url)
 
 	var jsonStr = []byte(jsonResp)
@@ -87,7 +89,7 @@ func scheduleReq(r *http.Request, tid string) []byte {
 	fmt.Println(string(jsonResp))
 
 	url := "http://192.168.1.188:8000/schedule"
-	
+
 	fmt.Println("URL:>", url)
 
 	var jsonStr = []byte(jsonResp)
